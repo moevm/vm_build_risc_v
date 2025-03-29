@@ -1,48 +1,37 @@
 #!/bin/bash
 
-if [ ! -d "build" ]; then
-    echo "Error: The script must be run from the 'poky' directory."
-    exit 1
-fi
+die() { echo "Error: $@" 1>&2; exit 1; }
 
-#check oe-init-build-env file
-if [ ! -f "oe-init-build-env" ]; then
-    echo "Error: The 'oe-init-build-env' file is missing! Make sure Yocto is installed."
-    exit 1
-fi
+[ -d build ] || die "The script must be started from the 'poky' directory."
+[ -f oe-init-build-env ] || die "The 'oe-init-build-env' file is missing! Make sure Yocto is installed."
 
 #initialize the Yocto build environment
-source oe-init-build-env
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to initialize the Yocto environment."
-    exit 1
-fi
+source oe-init-build-env || die "Failed to initialize the Yocto environment."
 
-#check if the image is built (it should be in tmp/deploy/images/qemuriscv64/)
-if [ ! -f "tmp/deploy/images/qemuriscv64/core-image-minimal-qemuriscv64.ext4" ]; then
-    echo "Error: Image not found! Run 'bitbake core-image-minimal' before starting the VM."
-    exit 1
-fi
+#check if the image is built
+IMAGE_PATH="tmp/deploy/images/qemuriscv64/core-image-minimal-qemuriscv64.ext4"
+[ -f "$IMAGE_PATH" ] || die "Image not found! Run 'bitbake core-image-minimal' before starting the VM."
 
 #check if runqemu is available
-if [ ! -x "$(command -v runqemu)" ]; then
-    echo "Error: runqemu not found. Make sure Yocto is properly installed."
-    exit 1
-fi
+command -v runqemu >/dev/null || die "runqemu not found. Make sure Yocto is properly installed."
 
 #check if QEMU is already running
-if pgrep -f qemu-system-riscv64 > /dev/null; then
+PIDS=$(pgrep -f qemu-system-riscv64)
+if [ -n "$PIDS" ]; then
     echo "Warning: QEMU is already running. The virtual machine might be active!"
     echo "Terminating the existing process..."
+    
     pkill -f qemu-system-riscv64
-    sleep 2
+
+    for PID in $PIDS; do
+        if command -v pidwait >/dev/null 2>&1; then
+            pidwait $PID 2>/dev/null || wait $PID 2>/dev/null
+        else
+            wait $PID 2>/dev/null
+        fi
+    done
 fi
 
 #start the virtual machine
 echo "Starting the RISC-V virtual machine..."
-runqemu qemuriscv64 nographic
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to start the virtual machine."
-    exit 1
-fi
-
+runqemu qemuriscv64 nographic || die "Failed to start the virtual machine."
