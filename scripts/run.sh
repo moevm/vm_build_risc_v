@@ -6,7 +6,7 @@ die() { echo "Error: $@" 1>&2; exit 1; }
 [ -f oe-init-build-env ] || die "The 'oe-init-build-env' file is missing! Make sure Yocto is installed."
 
 #initialize the Yocto build environment
-source oe-init-build-env build > /dev/null 2>&1 || die "Failed to initialize the Yocto environment."
+source oe-init-build-env build || die "Failed to initialize the Yocto environment."
 
 #check if the image is built
 IMAGE_PATH="tmp/deploy/images/qemuriscv64/core-image-minimal-qemuriscv64.ext4"
