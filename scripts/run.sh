@@ -71,7 +71,6 @@ if [ "$USE_HOST_QEMU" = true ]; then
     
     qemu-system-riscv64 \
         -machine virt \
-        -m 1024 \
         -nographic \
         -kernel "$KERNEL_IMAGE_PATH" \
         -append "root=/dev/vda rw console=ttyS0" \
