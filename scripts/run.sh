@@ -2,6 +2,32 @@
 
 die() { echo "Error: $@" 1>&2; exit 1; }
 
+show_help() {
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS] [QEMU_ARGS...]
+
+Options:
+  --use-host-qemu        Use system-installed QEMU instead of Yocto's runqemu
+  --vm-count=N           Number of virtual machines to launch (default: 3)
+  --help                 Show this help message and exit
+
+Arguments (QEMU_ARGS):
+  Additional arguments will be passed directly to each QEMU instance.
+
+Examples of QEMU_ARGS (you can use other valid options too):
+  -m 512M                Set VM memory size to 512 MB
+  -smp 2                 Set number of CPU cores to 2
+  -cpu sifive-u74        Use specific RISC-V CPU model
+  -bios none             Do not use BIOS/firmware
+
+Note:
+  - Ports are read from 'ports.conf', one per VM (one line per port).
+  - Root filesystem is copied into 'build/vm_images' for each VM.
+  - Logs are saved as 'vm_0.log', 'vm_1.log', etc.
+  - You can use any other valid QEMU arguments — the above are just examples.
+EOF
+}
+
 USE_HOST_QEMU=false
 VM_COUNT=3
 PORTS_FILE="ports.conf"
@@ -18,6 +44,10 @@ for arg in "$@"; do
         --vm-count=*)
             VM_COUNT="${arg#*=}"
             shift
+            ;;
+        --help)
+            show_help
+            exit 0
             ;;
         *)
             EXTRA_ARGS+=("$arg")
