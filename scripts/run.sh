@@ -55,6 +55,24 @@ else
 fi
 
 [ -f "$IMAGE_PATH" ] || die "Rootfs image not found! Run 'bitbake core-image-minimal' first."
+
+#check if QEMU is already running
+PIDS=$(pgrep -f qemu-system-riscv64)
+if [ -n "$PIDS" ]; then
+    echo "Warning: QEMU is already running. The virtual machine might be active!"
+    echo "Terminating the existing process..."
+    
+    pkill -f qemu-system-riscv64
+
+    for PID in $PIDS; do
+        if command -v pidwait >/dev/null 2>&1; then
+            pidwait $PID 2>/dev/null || wait $PID 2>/dev/null
+        else
+            wait $PID 2>/dev/null
+        fi
+    done
+fi
+
 mkdir -p "$VM_IMAGE_DIR"
 
 #multiple VM
@@ -84,7 +102,7 @@ for ((i=0; i<VM_COUNT; i++)); do
             > "$LOGFILE" 2>&1 &
     else
         echo "Launching VM $i on SSH port $PORT using runqemu..."
-        runqemu qemuriscv64 nographic \qemuparams="-drive file=${VM_ROOTFS},format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -netdev user,id=net${i},hostfwd=tcp::${PORT}-:22 -device virtio-net-device,netdev=net${i} ${EXTRA_ARGS[*]}" > "$LOGFILE" 2>&1 &
+        runqemu qemuriscv64 nographic qemuparams="-drive file=${VM_ROOTFS},format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -netdev user,id=net${i},hostfwd=tcp::${PORT}-:22 -device virtio-net-device,netdev=net${i} ${EXTRA_ARGS[*]}" > "$LOGFILE" 2>&1 &
     fi
 done
 
