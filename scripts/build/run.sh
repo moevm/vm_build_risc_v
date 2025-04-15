@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ -d "/home/builder/qemu/poky" ]; then
   cd /home/builder/qemu/poky
 else

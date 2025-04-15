@@ -42,8 +42,8 @@ RUN usermod -aG sudo builder
 
 WORKDIR /home/builder
 
-COPY build.sh /home/builder/scripts/build.sh
-COPY run.sh /home/builder/scripts/run.sh
+COPY scripts/build/build.sh /home/builder/scripts/build.sh
+COPY scripts/build/run.sh /home/builder/scripts/run.sh
 RUN chmod +x /home/builder/scripts/build.sh
 RUN chmod +x /home/builder/scripts/run.sh
 
