@@ -6,6 +6,7 @@ USE_HOST_QEMU=false
 VM_COUNT=3
 PORTS_FILE="ports.conf"
 VM_IMAGE_DIR="build/vm_images"
+EXTRA_ARGS=()
 
 #parse arguments
 for arg in "$@"; do
@@ -16,6 +17,10 @@ for arg in "$@"; do
             ;;
         --vm-count=*)
             VM_COUNT="${arg#*=}"
+            shift
+            ;;
+        *)
+            EXTRA_ARGS+=("$arg")
             shift
             ;;
     esac
@@ -75,10 +80,11 @@ for ((i=0; i<VM_COUNT; i++)); do
             -device virtio-blk-device,drive=hd0 \
             -netdev user,id=net${i},hostfwd=tcp::"$PORT"-:22 \
             -device virtio-net-device,netdev=net${i} \
+            "${EXTRA_ARGS[@]}" \
             > "$LOGFILE" 2>&1 &
     else
         echo "Launching VM $i on SSH port $PORT using runqemu..."
-        runqemu qemuriscv64 nographic qemuparams="-drive file=${VM_ROOTFS},format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -netdev user,id=net${i},hostfwd=tcp::${PORT}-:22 -device virtio-net-device,netdev=net${i}" > "$LOGFILE" 2>&1 &
+        runqemu qemuriscv64 nographic \qemuparams="-drive file=${VM_ROOTFS},format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -netdev user,id=net${i},hostfwd=tcp::${PORT}-:22 -device virtio-net-device,netdev=net${i} ${EXTRA_ARGS[*]}" > "$LOGFILE" 2>&1 &
     fi
 done
 
