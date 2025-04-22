@@ -8,7 +8,7 @@ Usage: $(basename "$0") [OPTIONS] [QEMU_ARGS...]
 
 Options:
   --use-host-qemu        Use system-installed QEMU instead of Yocto's runqemu
-  --vm-count=N           Number of virtual machines to launch (default: 3)
+  --vm-count=N           Number of virtual machines to launch (default: 1)
   --help                 Show this help message and exit
 
 Arguments (QEMU_ARGS):
@@ -20,11 +20,20 @@ Examples of QEMU_ARGS (you can use other valid options too):
   -cpu sifive-u74        Use specific RISC-V CPU model
   -bios none             Do not use BIOS/firmware
 
-Note:
-  - Ports are read from 'ports.conf', one per VM (one line per port).
-  - Root filesystem is copied into 'build/vm_images' for each VM.
-  - Logs are saved as 'vm_0.log', 'vm_1.log', etc.
-  - You can use any other valid QEMU arguments — the above are just examples.
+Notes:
+  - Launching multiple VMs (vm-count > 1) is **only supported with --use-host-qemu**.
+  - For any VM count (even 1), SSH ports must be listed in 'ports.conf' (one port per line).
+  - With --use-host-qemu:
+      - Each VM will use its own copy of the root filesystem (in 'build/vm_images').
+      - SSH port forwarding is enabled (hostfwd=tcp::PORT-:22).
+  - Without --use-host-qemu:
+      - Only a single VM can be launched using Yocto's 'runqemu'.
+      - Port forwarding and rootfs copying are not used.
+  - VM logs are saved as 'vm_0.log', 'vm_1.log', etc.
+  
+Examples:
+  $(basename "$0") --vm-count=2 --use-host-qemu -m 1G -smp 2
+  $(basename "$0") -m 256M  # Launch single VM using runqemu
 EOF
 }
 
