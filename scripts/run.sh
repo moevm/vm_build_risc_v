@@ -2,6 +2,41 @@
 
 die() { echo "Error: $@" 1>&2; exit 1; }
 
+show_help() {
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS] [QEMU_ARGS...]
+
+Options:
+  --use-host-qemu        Use system-installed QEMU instead of Yocto's runqemu
+  --vm-count=N           Number of virtual machines to launch (default: 1)
+  --help                 Show this help message and exit
+
+Arguments (QEMU_ARGS):
+  Additional arguments will be passed directly to each QEMU instance.
+
+Examples of QEMU_ARGS (you can use other valid options too):
+  -m 512M                Set VM memory size to 512 MB
+  -smp 2                 Set number of CPU cores to 2
+  -cpu sifive-u74        Use specific RISC-V CPU model
+  -bios none             Do not use BIOS/firmware
+
+Notes:
+  - Launching multiple VMs (vm-count > 1) is **only supported with --use-host-qemu**.
+  - For any VM count (even 1), SSH ports must be listed in 'ports.conf' (one port per line).
+  - With --use-host-qemu:
+      - Each VM will use its own copy of the root filesystem (in 'build/vm_images').
+      - SSH port forwarding is enabled (hostfwd=tcp::PORT-:22).
+  - Without --use-host-qemu:
+      - Only a single VM can be launched using Yocto's 'runqemu'.
+      - Port forwarding and rootfs copying are not used.
+  - VM logs are saved as 'vm_0.log', 'vm_1.log', etc.
+  
+Examples:
+  $(basename "$0") --vm-count=2 --use-host-qemu -m 1G -smp 2
+  $(basename "$0") -m 256M  # Launch single VM using runqemu
+EOF
+}
+
 USE_HOST_QEMU=false
 VM_COUNT=1
 PORTS_FILE="ports.conf"
@@ -18,6 +53,10 @@ for arg in "$@"; do
         --vm-count=*)
             VM_COUNT="${arg#*=}"
             shift
+            ;;
+        --help)
+            show_help
+            exit 0
             ;;
         *)
             EXTRA_ARGS+=("$arg")
