@@ -27,6 +27,6 @@ bitbake-layers add-layer ../meta-openembedded/meta-oe ../meta-openembedded/meta-
 
 echo "MACHINE ?= \"qemuriscv64\"" >> conf/local.conf
 echo "DISTRO_FEATURES:append = \" virtualization\"" >> conf/local.conf
-echo "IMAGE_INSTALL:append = \" docker docker-compose\"" >> conf/local.conf
+echo "IMAGE_INSTALL:append = \" docker docker-compose git\"" >> conf/local.conf
 
 bitbake core-image-minimal
