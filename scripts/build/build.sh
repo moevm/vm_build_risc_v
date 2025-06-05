@@ -25,8 +25,9 @@ source oe-init-build-env
 bitbake-layers add-layer ../meta-openembedded/meta-oe ../meta-openembedded/meta-python \
   ../meta-openembedded/meta-networking ../meta-openembedded/meta-filesystems ../meta-virtualization
 
-echo "MACHINE ?= \"qemuriscv64\"" >> conf/local.conf
-echo "DISTRO_FEATURES:append = \" virtualization\"" >> conf/local.conf
-echo "IMAGE_INSTALL:append = \" docker docker-compose\"" >> conf/local.conf
+echo "MACHINE ?= \"qemuriscv64\"" >>conf/local.conf
+echo "DISTRO_FEATURES:append = \" virtualization\"" >>conf/local.conf
+echo "IMAGE_INSTALL:append = \" docker docker-compose git\"" >>conf/local.conf
+echo "IMAGE_ROOTFS_EXTRA_SPACE = \" 1048576\"" >>conf/local.conf
 
 bitbake core-image-minimal
