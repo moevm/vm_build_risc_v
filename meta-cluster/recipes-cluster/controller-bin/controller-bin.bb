@@ -10,9 +10,11 @@ S = "${WORKDIR}/git/controller"
 
 DEPENDS = "go-native"
 
+GOARCH = "${@ "amd64" if d.getVar('TARGET_ARCH') == "x86_64" else "riscv64"}"
+
 do_compile() {
     cd cmd/manager
-    go build -trimpath -o manager main.go
+    GOOS=${TARGET_GOOS} GOARCH=${GOARCH} go build -trimpath -o manager main.go
 }
 
 do_install() {
