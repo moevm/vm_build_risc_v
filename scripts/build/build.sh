@@ -20,14 +20,19 @@ if [ ! -d "meta-openembedded" ]; then
   git clone https://github.com/openembedded/meta-openembedded
 fi
 
+if [ ! -d "vm_build_risc_v" ]; then
+  git clone https://github.com/moevm/vm_build_risc_v
+fi
+
 source oe-init-build-env
 
 bitbake-layers add-layer ../meta-openembedded/meta-oe ../meta-openembedded/meta-python \
-  ../meta-openembedded/meta-networking ../meta-openembedded/meta-filesystems ../meta-virtualization
+  ../meta-openembedded/meta-networking ../meta-openembedded/meta-filesystems ../meta-virtualization \
+  ../vm_build_risc_v/meta-cluster
 
 echo "MACHINE ?= \"qemuriscv64\"" >>conf/local.conf
 echo "DISTRO_FEATURES:append = \" virtualization\"" >>conf/local.conf
-echo "IMAGE_INSTALL:append = \" docker docker-compose git\"" >>conf/local.conf
+echo "IMAGE_INSTALL:append = \" docker docker-compose git controller-bin worker-bin\"" >>conf/local.conf
 echo "IMAGE_ROOTFS_EXTRA_SPACE = \" 1048576\"" >>conf/local.conf
 
 bitbake core-image-minimal
