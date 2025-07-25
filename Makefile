@@ -6,10 +6,10 @@ build:
 	docker buildx build -t $(IMAGE_NAME) .
 
 yocto:
-	docker run --rm -it -v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/ $(IMAGE_NAME) /home/builder/scripts/build.sh
+	docker run --rm -it -v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z $(IMAGE_NAME) /home/builder/scripts/build.sh
 
 run:
-	docker run --rm -it -v $(pwd)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/ $(IMAGE_NAME) /home/builder/scripts/run.sh
+	docker run --rm -it -v $(pwd)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z $(IMAGE_NAME) /home/builder/scripts/run.sh
 
 clean:
 	docker rmi $(IMAGE_NAME)
