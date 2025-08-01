@@ -6,8 +6,6 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 SRC_URI = "git://github.com/jupp0r/prometheus-cpp.git;protocol=https;branch=master"
 SRCREV = "v1.3.0"
 
-S = "${WORKDIR}/git"
-
 DEPENDS = "zlib openssl curl"
 
 inherit cmake
