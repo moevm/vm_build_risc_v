@@ -6,18 +6,12 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 SRC_URI = "git://github.com/moevm/grpc_server;branch=main;protocol=https"
 SRCREV = "${AUTOREV}"
 
-DEPENDS = "go-native protobuf-native"
+DEPENDS = "go-native protobuf-native protoc-gen-go-native protoc-gen-go-grpc-native"
 
 GOARCH = "${@ "amd64" if d.getVar('TARGET_ARCH') == "x86_64" else "riscv64"}"
 
-do_compile[network] = "1"
-
 do_compile() {
     cd controller
-    export GOPATH=${S}/go
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-    export PATH=$PATH:$GOPATH/bin
     protoc \
       --go_out=. \
       --go_opt=paths=source_relative \
