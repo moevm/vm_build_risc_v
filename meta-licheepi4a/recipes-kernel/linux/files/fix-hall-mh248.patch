@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000001 Mon Sep 17 00:00:00 2001
+From: Fix <fix@fix.com>
+Date: Mon, 1 Jan 2024 00:00:00 +0000
+Subject: [PATCH] input: hall: fix hall_mh248_pm_ops undeclared error
+
+--- a/drivers/input/hall/mh248.c
++++ b/drivers/input/hall/mh248.c
+@@ -202,7 +202,9 @@ static const struct of_device_id hall_mh248_match[] = {
+ static struct platform_driver hall_mh248_driver = {
+ 	.probe = hall_mh248_probe,
+ 	.driver = {
+ 		.name = "mh248",
+ 		.owner = THIS_MODULE,
+ 		.of_match_table	= hall_mh248_match,
++#ifdef CONFIG_PM_SLEEP
+ 		.pm = &hall_mh248_pm_ops,
++#endif
+ 	},
+ };

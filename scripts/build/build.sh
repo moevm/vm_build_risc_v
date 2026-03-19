@@ -65,7 +65,16 @@ cp -v "${DEPLOY}/fw_dynamic.bin"           "${BOOT_DIR}/"
 cp -v "${DEPLOY}/light_aon_fpga.bin"       "${BOOT_DIR}/"
 
 mkdir -p "${BOOT_DIR}/dtbs"
-cp -v "${DEPLOY}/th1520-lichee-pi-4a.dtb"  "${BOOT_DIR}/dtbs/"
+#cp -v "${DEPLOY}/th1520-lichee-pi-4a-16g.dtb"  "${BOOT_DIR}/dtbs/"
+
+DTB=$(find "${DEPLOY}" -name "th1520-lichee-pi-4a-16g.dtb" | head -1)
+if [ -z "$DTB" ]; then
+    echo "ERROR: DTB not found in ${DEPLOY}"
+    find "${DEPLOY}" -name "*.dtb"
+    exit 1
+fi
+cp -v "$DTB" "${BOOT_DIR}/dtbs/"
+
 
 mkdir -p "${BOOT_DIR}/extlinux"
 cat > "${BOOT_DIR}/extlinux/extlinux.conf" << 'EXTEOF'
@@ -75,7 +84,7 @@ menu title Lichee Pi 4A Boot Menu
 label yocto
     menu label Yocto DPDK Image
     linux /Image
-    fdt /dtbs/th1520-lichee-pi-4a.dtb
+    fdt /dtbs/th1520-lichee-pi-4a-16g.dtb
     append root=PARTUUID=80a5a8e9-c744-491a-93c1-4f4194fd690a console=ttyS0,115200 rootwait rw earlycon clk_ignore_unused loglevel=7 rootfstype=ext4
 EXTEOF
 

@@ -12,6 +12,7 @@ yocto:
 		--memory=12g \
 		--cpus=8 \
 		-v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z \
+		-v $(PWD)/meta-licheepi4a:/home/builder/meta-licheepi4a:Z \
 		$(IMAGE_NAME) /home/builder/scripts/build.sh
 
 .PHONY: redeploy
@@ -20,6 +21,7 @@ redeploy:
 		--memory=12g \
 		--cpus=8 \
 		-v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z \
+		-v $(PWD)/meta-licheepi4a:/home/builder/meta-licheepi4a:Z \
 		$(IMAGE_NAME) /bin/bash -c \
 		"source /home/builder/$(VOLUME_NAME)/poky/oe-init-build-env /home/builder/$(VOLUME_NAME)/poky/build && \
 		bitbake -f -c deploy opensbi-thead firmware-th1520 u-boot-thead linux-revyos-th1520 && \
@@ -32,6 +34,7 @@ rebuild:
 		--memory=12g \
 		--cpus=8 \
 		-v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z \
+		-v $(PWD)/meta-licheepi4a:/home/builder/meta-licheepi4a:Z \
 		$(IMAGE_NAME) /bin/bash -c \
 		"source /home/builder/$(VOLUME_NAME)/poky/oe-init-build-env /home/builder/$(VOLUME_NAME)/poky/build && \
 		bitbake -c cleansstate licheepi4a-dpdk-image && \
@@ -39,10 +42,10 @@ rebuild:
 
 .PHONY: run
 run:
-	docker run --rm -it -v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z $(IMAGE_NAME) /home/builder/scripts/run.sh
+	docker run --rm -it -v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z -v $(PWD)/meta-licheepi4a:/home/builder/meta-licheepi4a:Z $(IMAGE_NAME) /home/builder/scripts/run.sh
 
 test:
-	docker run --rm -it -v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z $(IMAGE_NAME) /bin/bash
+	docker run --rm -it -v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z -v $(PWD)/meta-licheepi4a:/home/builder/meta-licheepi4a:Z $(IMAGE_NAME) /bin/bash
 
 clean:
 	docker rmi $(IMAGE_NAME)
