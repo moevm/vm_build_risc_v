@@ -7,6 +7,7 @@ LIC_FILES_CHKSUM = "file://Licenses/README;md5=30503fd321432fc713238f582193b78e"
 
 SRC_URI = " \
     git://github.com/revyos/thead-u-boot.git;protocol=https;branch=th1520 \
+    file://booti.cfg \
 "
 SRCREV = "${AUTOREV}"
 
@@ -28,6 +29,8 @@ EXTRA_OEMAKE = " \
 
 do_configure() {
     oe_runmake ${UBOOT_MACHINE}
+    cat ${WORKDIR}/booti.cfg >> ${B}/.config
+    yes '' | oe_runmake -C ${S} O=${B} olddefconfig
 }
 
 do_compile() {

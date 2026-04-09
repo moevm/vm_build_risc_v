@@ -1,14 +1,15 @@
-SUMMARY = "OpenSBI for T-Head TH1520 SoC"
-DESCRIPTION = "RISC-V Open Source Supervisor Binary Interface implementation \
-from RevyOS project, with T-Head TH1520 platform support."
+SUMMARY = "OpenSBI v1.6 for T-Head TH1520 SoC"
+DESCRIPTION = "RISC-V Open Source Supervisor Binary Interface v1.6 \
+from RevyOS project, with T-Head TH1520 platform support and SBI spec 2.0."
 LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://COPYING.BSD;md5=42dd9555eb177f35150cf9aa240b61e5"
 
 inherit deploy
 
-BRANCH = "th1520"
-SRC_URI = "git://github.com/revyos/thead-opensbi.git;branch=${BRANCH};protocol=https"
+BRANCH = "th1520-v1.6"
+SRC_URI = "git://github.com/revyos/opensbi.git;branch=${BRANCH};protocol=https"
 SRCREV = "${AUTOREV}"
+PV = "1.6+git"
 
 S = "${WORKDIR}/git"
 

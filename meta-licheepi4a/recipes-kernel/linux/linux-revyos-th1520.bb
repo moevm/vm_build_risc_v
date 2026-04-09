@@ -5,15 +5,14 @@ SECTION = "kernel"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-inherit kernel kernel-yocto
+inherit kernel
 
-DEPENDS += "dtc-native elfutils-native"
+DEPENDS += "dtc-native elfutils-native bc-native"
 
 BRANCH = "th1520-lts"
 SRC_URI = "git://github.com/revyos/th1520-linux-kernel.git;protocol=https;branch=${BRANCH} \
-           file://dpdk.cfg;type=kmeta;name=dpdk \
-           file://extra.cfg;type=kmeta;name=extra \
-           file://fix-hall-mh248.patch \
+           file://extra.cfg \
+           file://dpdk.cfg \
            "
 
 SRCREV = "${AUTOREV}"
@@ -24,30 +23,18 @@ LINUX_VERSION ?= "6.6"
 LINUX_VERSION_EXTENSION = "-th1520-revyos"
 PV = "${LINUX_VERSION}+git"
 
+KERNEL_IMAGETYPE = "Image.gz"
+
 KERNEL_VERSION_SANITY_SKIP = "1"
 
-KBUILD_DEFCONFIG = "th1520_defconfig"
+do_configure() {
+    oe_runmake -C ${S} O=${B} th1520_defconfig
 
-do_configure:prepend() {
-    if ! grep -q "CONFIG_ARCH_XUANTIE" ${B}/.config 2>/dev/null; then
-        echo "CONFIG_ARCH_XUANTIE=y" >> ${WORKDIR}/extra.cfg
-    fi
-}
+    ${S}/scripts/kconfig/merge_config.sh -m -O ${B} ${B}/.config \
+        ${WORKDIR}/extra.cfg \
+        ${WORKDIR}/dpdk.cfg
 
-do_configure:append() {
-    echo "CONFIG_GENERIC_CPU_VULNERABILITIES=y" >> ${B}/.config
-    echo "CONFIG_RISCV_ISA_VENDOR_EXT_THEAD=y" >> ${B}/.config
-    echo "CONFIG_RISCV_ISA_V=y" >> ${B}/.config
-    echo "CONFIG_FPU=y" >> ${B}/.config
-    echo "CONFIG_RISCV_ISA_XTHEADVECTOR=y" >> ${B}/.config
-    echo "CONFIG_DEVFREQ_THERMAL=y" >> ${B}/.config
-    echo "CONFIG_INPUT=y" >> ${B}/.config
-    echo "CONFIG_ERRATA_THEAD=y" >> ${B}/.config
-    echo "CONFIG_ERRATA_THEAD_GHOSTWRITE=y" >> ${B}/.config
-    echo "# CONFIG_DEBUG_INFO_BTF is not set" >> ${B}/.config
-    echo "CONFIG_DRM_IMG_ROGUE_GPUTRACE=n" >> ${B}/.config
-    echo "CONFIG_DRM_POWERVR_ROGUE=n" >> ${B}/.config
-    yes '' | make -C ${S} O=${B} olddefconfig
+    yes '' | oe_runmake -C ${S} O=${B} olddefconfig
 }
 
 

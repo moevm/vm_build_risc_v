@@ -12,3 +12,11 @@ make yocto
 ```
 ./scripts/flash.sh
 ```
+
+
+## Using UART
+```sh
+sudo minicom -D /dev/ttyUSB1 -b 115200
+```
+
+

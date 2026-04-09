@@ -6,7 +6,9 @@ YOCTO_BRANCH="scarthgap"
 WORKDIR="/home/builder/yocto"
 
 mkdir -p "${WORKDIR}"
-sudo chown -R builder:builder "${WORKDIR}"
+if [ ! -d "${WORKDIR}/poky" ]; then
+    sudo chown builder:builder "${WORKDIR}"
+fi
 cd "${WORKDIR}"
 
 if [ ! -d "poky" ]; then
@@ -21,12 +23,28 @@ fi
 
 source oe-init-build-env build
 
-bitbake-layers add-layer ../meta-openembedded/meta-oe 2>/dev/null || true
-bitbake-layers add-layer ../meta-openembedded/meta-python 2>/dev/null || true
-bitbake-layers add-layer ../meta-openembedded/meta-networking 2>/dev/null || true
-bitbake-layers add-layer ../meta-openembedded/meta-filesystems 2>/dev/null || true
-bitbake-layers add-layer /home/builder/meta-cluster 2>/dev/null || true
-bitbake-layers add-layer /home/builder/meta-licheepi4a 2>/dev/null || true
+# TODO:
+# Сделать отдельный файл для конфигов
+# bblayers.conf и local.conf
+
+cat > conf/bblayers.conf << 'LAYERSEOF'
+POKY_BBLAYERS_CONF_VERSION = "2"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+BBLAYERS ?= " \
+  /home/builder/yocto/poky/meta \
+  /home/builder/yocto/poky/meta-poky \
+  /home/builder/yocto/poky/meta-yocto-bsp \
+  /home/builder/yocto/poky/meta-openembedded/meta-oe \
+  /home/builder/yocto/poky/meta-openembedded/meta-python \
+  /home/builder/yocto/poky/meta-openembedded/meta-networking \
+  /home/builder/yocto/poky/meta-openembedded/meta-filesystems \
+  /home/builder/meta-cluster \
+  /home/builder/meta-licheepi4a \
+  "
+LAYERSEOF
 
 if ! grep -q "### LICHEEPI4A CONFIG ###" conf/local.conf 2>/dev/null; then
     cat >> conf/local.conf << 'CONFEOF'
@@ -55,44 +73,4 @@ fi
 
 bitbake licheepi4a-dpdk-image
 
-DEPLOY="tmp/deploy/images/licheepi4a"
-BOOT_DIR=$(mktemp -d)
-BOOT_IMG="${DEPLOY}/boot-licheepi4a.ext4"
-BOOT_SIZE_MB=200
-
-cp -v "${DEPLOY}/Image"                    "${BOOT_DIR}/"
-cp -v "${DEPLOY}/fw_dynamic.bin"           "${BOOT_DIR}/"
-cp -v "${DEPLOY}/light_aon_fpga.bin"       "${BOOT_DIR}/"
-
-mkdir -p "${BOOT_DIR}/dtbs"
-#cp -v "${DEPLOY}/th1520-lichee-pi-4a-16g.dtb"  "${BOOT_DIR}/dtbs/"
-
-DTB=$(find "${DEPLOY}" -name "th1520-lichee-pi-4a-16g.dtb" | head -1)
-if [ -z "$DTB" ]; then
-    echo "ERROR: DTB not found in ${DEPLOY}"
-    find "${DEPLOY}" -name "*.dtb"
-    exit 1
-fi
-cp -v "$DTB" "${BOOT_DIR}/dtbs/"
-
-
-mkdir -p "${BOOT_DIR}/extlinux"
-cat > "${BOOT_DIR}/extlinux/extlinux.conf" << 'EXTEOF'
-default yocto
-menu title Lichee Pi 4A Boot Menu
-
-label yocto
-    menu label Yocto DPDK Image
-    linux /Image
-    fdt /dtbs/th1520-lichee-pi-4a-16g.dtb
-    append root=PARTUUID=80a5a8e9-c744-491a-93c1-4f4194fd690a console=ttyS0,115200 rootwait rw earlycon clk_ignore_unused loglevel=7 rootfstype=ext4
-EXTEOF
-
-cat "${BOOT_DIR}/extlinux/extlinux.conf"
-
-dd if=/dev/zero of="${BOOT_IMG}" bs=1M count=${BOOT_SIZE_MB}
-mkfs.ext4 -d "${BOOT_DIR}" -L boot "${BOOT_IMG}"
-
-rm -rf "${BOOT_DIR}"
-echo "Created: ${BOOT_IMG}"
-echo "Output artifacts in: ${DEPLOY}/"
+exec /home/builder/scripts/mkboot.sh
