@@ -27,6 +27,9 @@ IMAGE_INSTALL:append = " \
 # Extra rootfs space (1GB)
 IMAGE_ROOTFS_EXTRA_SPACE = "1048576"
 
+# SDK: strip debug and source packages to save space
+SDKIMAGE_FEATURES = "dev-pkgs"
+
 # SDK: include -dev packages in sysroot for Bazel cross-compilation
 # Used by: bitbake -c populate_sdk cluster-image
 TOOLCHAIN_TARGET_TASK:append = " \
