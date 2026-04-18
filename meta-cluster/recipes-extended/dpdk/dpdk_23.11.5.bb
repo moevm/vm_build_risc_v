@@ -1,4 +1,4 @@
-SUMMARY = "Data Plane Development Kit - helloworld example for RISC-V"
+SUMMARY = "Data Plane Development Kit"
 HOMEPAGE = "http://dpdk.org"
 LICENSE = "BSD-3-Clause & LGPL-2.1-only & GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://license/gpl-2.0.txt;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
@@ -12,19 +12,19 @@ SRCREV = "62f583c49bf67dd4d6733ece14e55fe6839e66d1"
 
 S = "${WORKDIR}/git"
 
-DEPENDS = "numactl python3-pyelftools-native"
+DEPENDS = "numactl python3-pyelftools-native libbpf libxdp"
 
 inherit meson pkgconfig
 
 EXTRA_OEMESON = " \
     -Dplatform=generic \
     -Dcpu_instruction_set=rv64gc \
-    -Dexamples=helloworld \
     -Denable_docs=false \
     -Dtests=false \
-    -Ddisable_drivers=* \
     -Dmax_lcores=128 \
     -Dmax_numa_nodes=1 \
+    -Ddisable_drivers=crypto/*,compress/*,regex/*,vdpa/*,event/*,baseband/*,gpu/*,raw/*,dma/* \
+    -Denable_drivers=net/af_xdp,net/tap \
 "
 
 EXTRA_OEMESON:append:riscv64 = " \
@@ -41,11 +41,6 @@ EOF
 }
 
 do_install:append() {
-    if [ -f ${B}/examples/dpdk-helloworld ]; then
-        install -d ${D}${bindir}
-        install -m 0755 ${B}/examples/dpdk-helloworld ${D}${bindir}/dpdk-helloworld
-    fi
-
     rm -rf ${D}${datadir}/dpdk/examples || true
     rm -rf ${D}${prefix}/share/dpdk/examples || true
 }
@@ -56,11 +51,10 @@ FILES:${PN} += " \
     ${libdir}/*.so* \
     ${libdir}/dpdk/ \
 "
-FILES:${PN}-examples = "${bindir}/dpdk-helloworld"
 FILES:${PN}-dev = "${includedir} ${libdir}/pkgconfig"
+FILES:${PN}-staticdev = "${libdir}/*.a"
 
-RDEPENDS:${PN} += "numactl"
-RDEPENDS:${PN}-examples += "${PN}"
+RDEPENDS:${PN} += "numactl libbpf libxdp"
 
 INSANE_SKIP:${PN} += "dev-so"
 
