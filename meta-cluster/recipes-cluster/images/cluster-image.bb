@@ -14,6 +14,8 @@ IMAGE_INSTALL:append = " \
     openssl \
     curl \
     sqlite3 \
+    prometheus-cpp \
+    dpdk \
 "
 
 # Networking and debug tools
