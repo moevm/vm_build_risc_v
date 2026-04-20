@@ -24,6 +24,7 @@ IMAGE_INSTALL:append = " \
     net-tools \
     ethtool \
     strace \
+    initscripts-cluster \
 "
 
 # Extra rootfs space (1GB)
