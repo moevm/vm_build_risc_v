@@ -4,7 +4,9 @@ HOMEPAGE = "https://github.com/xdp-project/xdp-tools"
 LICENSE = "GPL-2.0-only & LGPL-2.1-only & BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=9ee53f8d06bbdb4c11b1557ecc4f8cd5"
 
-SRC_URI = "git://github.com/xdp-project/xdp-tools.git;protocol=https;branch=main"
+SRC_URI = "git://github.com/xdp-project/xdp-tools.git;protocol=https;branch=main \
+           file://config.mk.in \
+"
 SRCREV = "v1.4.2"
 
 S = "${WORKDIR}/git"
@@ -20,45 +22,13 @@ EXTRA_OEMAKE = " \
 "
 
 do_configure() {
-    cat > ${S}/config.mk << EOF
-CC := ${CC}
-CLANG := clang
-LLC := llc
-LD := ${LD}
-OBJCOPY := ${OBJCOPY}
-M4 := m4
-READELF := ${READELF}
-PKG_CONFIG := pkg-config
-BPFTOOL :=
-
-PRODUCTION := 1
-DYNAMIC_LIBXDP := 1
-MAX_DISPATCHER_ACTIONS := 10
-BPF_TARGET := bpf
-
-HAVE_ZLIB := y
-HAVE_ELF := y
-SECURE_GETENV := y
-HAVE_FEATURES := ZLIB ELF SECURE_GETENV \
-  LIBBPF_BPF_XDP_ATTACH \
-  LIBBPF_BPF_MAP_CREATE \
-  LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID \
-  LIBBPF_BTF__TYPE_CNT \
-  LIBBPF_BPF_OBJECT__NEXT_MAP \
-  LIBBPF_BPF_OBJECT__NEXT_PROGRAM \
-  LIBBPF_BPF_PROGRAM__INSN_CNT \
-  LIBBPF_BPF_PROGRAM__TYPE \
-  LIBBPF_BPF_PROGRAM__FLAGS \
-  LIBBPF_BPF_PROGRAM__EXPECTED_ATTACH_TYPE
-
-SYSTEM_LIBBPF := y
-LIBBPF_VERSION := 1.4.7
-OBJECT_LIBBPF :=
-
-CFLAGS += ${CFLAGS}
-LDLIBS := -lbpf -lelf -lz
-ARCH_INCLUDES := -isystem ${STAGING_INCDIR}
-EOF
+    sed -e "s|@CC@|${CC}|g" \
+        -e "s|@LD@|${LD}|g" \
+        -e "s|@OBJCOPY@|${OBJCOPY}|g" \
+        -e "s|@READELF@|${READELF}|g" \
+        -e "s|@CFLAGS@|${CFLAGS}|g" \
+        -e "s|@STAGING_INCDIR@|${STAGING_INCDIR}|g" \
+        ${WORKDIR}/config.mk.in > ${S}/config.mk
 }
 
 do_compile() {
