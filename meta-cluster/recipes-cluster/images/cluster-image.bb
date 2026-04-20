@@ -27,8 +27,8 @@ IMAGE_INSTALL:append = " \
     initscripts-cluster \
 "
 
-# Extra rootfs space (1GB)
-IMAGE_ROOTFS_EXTRA_SPACE = "1048576"
+# Extra rootfs space (4GB)
+IMAGE_ROOTFS_EXTRA_SPACE = "4194304"
 
 # SDK: strip debug and source packages to save space
 SDKIMAGE_FEATURES = "dev-pkgs"
