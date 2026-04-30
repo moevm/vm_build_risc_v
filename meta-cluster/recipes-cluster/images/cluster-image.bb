@@ -24,6 +24,8 @@ IMAGE_INSTALL:append = " \
     net-tools \
     ethtool \
     strace \
+    coreutils \
+    util-linux \
     initscripts-cluster \
 "
 
