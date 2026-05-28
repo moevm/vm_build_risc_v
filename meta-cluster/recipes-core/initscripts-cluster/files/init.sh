@@ -1,18 +1,5 @@
 #!/bin/sh
 
-mkdir -p /mnt/shared
-mount -t 9p -o trans=virtio,cache=none host_share /mnt/shared 2>/dev/null || true
-
-mkdir -p /dev/hugepages
-mount -t hugetlbfs none /dev/hugepages 2>/dev/null || true
-
-ip link set eth0 up 2>/dev/null || true
-ip link set eth1 up 2>/dev/null || true
-
-if [ -x /mnt/shared/setup-inet.sh ]; then
-    /mnt/shared/setup-inet.sh
-fi
-
 get_cmdline_param() {
     for param in $(cat /proc/cmdline); do
         case "$param" in
@@ -20,6 +7,29 @@ get_cmdline_param() {
         esac
     done
 }
+
+mkdir -p /mnt/shared
+if mount -t 9p -o trans=virtio,cache=none host_share /mnt/shared 2>/dev/null; then
+    echo "Mounted 9p shared directory"
+else
+    NFS_SERVER=$(get_cmdline_param nfs_server)
+    if [ -n "$NFS_SERVER" ]; then
+        mount -t nfs -o nolock,tcp "$NFS_SERVER" /mnt/shared
+        echo "Mounted NFS from $NFS_SERVER"
+    fi
+fi
+
+mkdir -p /dev/hugepages
+mount -t hugetlbfs none /dev/hugepages 2>/dev/null || true
+mkdir -p /sys/fs/bpf
+mount -t bpf bpf /sys/fs/bpf 2>/dev/null || true
+
+ip link set eth0 up 2>/dev/null || true
+ip link set eth1 up 2>/dev/null || true
+
+if [ -x /mnt/shared/setup-inet.sh ]; then
+    /mnt/shared/setup-inet.sh
+fi
 
 ROLE=$(get_cmdline_param role)
 LOGDIR="/mnt/shared/logs"
