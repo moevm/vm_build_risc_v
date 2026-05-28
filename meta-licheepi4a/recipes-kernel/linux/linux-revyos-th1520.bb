@@ -16,7 +16,7 @@ SRC_URI = "git://github.com/revyos/th1520-linux-kernel.git;protocol=https;branch
            file://0001-stmmac-fix-ethtool-channels-for-single-queue-gmac.patch \
            "
 
-SRCREV = "${AUTOREV}"
+SRCREV = "a092d55649279e1c9bcda2769b8f6b4370fa2c94"
 
 S = "${WORKDIR}/git"
 
