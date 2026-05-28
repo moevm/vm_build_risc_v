@@ -16,6 +16,7 @@ IMAGE_INSTALL:append = " \
     sqlite3 \
     prometheus-cpp \
     dpdk \
+    redis \
 "
 
 # Networking and debug tools
