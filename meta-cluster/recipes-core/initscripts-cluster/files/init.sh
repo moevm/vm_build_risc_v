@@ -32,6 +32,8 @@ if [ -x /mnt/shared/setup-inet.sh ]; then
 fi
 
 ROLE=$(get_cmdline_param role)
+MGMT_IF=$(get_cmdline_param mgmt_if)
+MGMT_IF="${MGMT_IF:-eth0}"
 LOGDIR="/mnt/shared/logs"
 mkdir -p "$LOGDIR"
 
@@ -44,6 +46,12 @@ run_with_logs() {
 
 case "$ROLE" in
     controller)
+        ip link set "$MGMT_IF" up 2>/dev/null || true
+        ip addr add 10.0.2.3/24 dev "$MGMT_IF" 2>/dev/null || true
+        ip -6 addr add fd00:a::3/64 dev "$MGMT_IF" 2>/dev/null || true
+
+        dnsmasq --interface="$MGMT_IF" --conf-file=/etc/cluster/dnsmasq.conf
+
         if [ -f /mnt/shared/configs/controller.env ]; then
             set -a
             . /mnt/shared/configs/controller.env
@@ -54,6 +62,14 @@ case "$ROLE" in
         ;;
     worker)
         (
+            ip link set "$MGMT_IF" up 2>/dev/null || true
+            echo "Requesting IP via DHCP on $MGMT_IF..."
+            udhcpc -i "$MGMT_IF" -t 30 -T 2 -A 5 -q
+            echo "Got IP: $(ip -4 addr show "$MGMT_IF" | grep inet | awk '{print $2}')"
+
+            ip tuntap add tap0 mode tap 2>/dev/null || true
+            ip link set tap0 up 2>/dev/null || true
+
             WORKER_ID=$(get_cmdline_param worker_id)
             export WORKER_ID
             if [ -f /mnt/shared/configs/worker.env ]; then

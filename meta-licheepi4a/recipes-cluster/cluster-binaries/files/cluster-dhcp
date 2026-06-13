@@ -1,0 +1,74 @@
+#!/bin/sh
+
+usage() {
+    echo "Usage: cluster-dhcp <start|stop> <interface>"
+    echo ""
+    echo "Starts dnsmasq DHCP server on the given interface."
+    echo "The interface must already have an IP assigned."
+    echo ""
+    echo "Example:"
+    echo "  ip addr add 10.0.2.3/24 dev eth0"
+    echo "  cluster-dhcp start eth0"
+    exit 1
+}
+
+ACTION="$1"
+IFACE="$2"
+
+if [ -z "$ACTION" ] || [ -z "$IFACE" ]; then
+    usage
+fi
+
+PIDFILE="/var/run/dnsmasq-cluster.pid"
+
+case "$ACTION" in
+    start)
+        if [ -f "$PIDFILE" ]; then
+            echo "Already running (pid $(cat $PIDFILE)). Run 'cluster-dhcp stop $IFACE' first."
+            exit 1
+        fi
+
+        ADDR=$(ip -4 addr show "$IFACE" | grep -oP 'inet \K[0-9.]+')
+        MASK=$(ip -4 addr show "$IFACE" | grep -oP 'inet [0-9.]+/\K[0-9]+')
+
+        if [ -z "$ADDR" ]; then
+            echo "No IPv4 address on $IFACE. Assign one first:"
+            echo "  ip addr add <ip>/<mask> dev $IFACE"
+            exit 1
+        fi
+
+        SUBNET=$(echo "$ADDR" | cut -d. -f1-3)
+        RANGE_START="${SUBNET}.10"
+        RANGE_END="${SUBNET}.200"
+
+        echo "Starting dnsmasq on $IFACE ($ADDR/${MASK:-24})"
+        echo "DHCP range: $RANGE_START - $RANGE_END"
+
+        dnsmasq \
+            --interface="$IFACE" \
+            --bind-interfaces \
+            --no-resolv \
+            --server=8.8.8.8 \
+            --server=2001:4860:4860::8888 \
+            --dhcp-range="${RANGE_START},${RANGE_END},255.255.255.0,12h" \
+            --dhcp-option=option:router,"$ADDR" \
+            --dhcp-option=option:dns-server,"$ADDR" \
+            --address="/controller.local/${ADDR}" \
+            --enable-ra \
+            --pid-file="$PIDFILE"
+
+        echo "dnsmasq started (pid $(cat $PIDFILE))"
+        ;;
+    stop)
+        if [ -f "$PIDFILE" ]; then
+            kill "$(cat $PIDFILE)" 2>/dev/null
+            rm -f "$PIDFILE"
+            echo "Stopped"
+        else
+            echo "Not running"
+        fi
+        ;;
+    *)
+        usage
+        ;;
+esac

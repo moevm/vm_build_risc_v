@@ -27,6 +27,7 @@ IMAGE_INSTALL:append = " \
     tcpdump \
     net-tools \
     openssh-sftp-server \
+    dnsmasq \
 "
 
 # System utilities
@@ -56,6 +57,7 @@ IMAGE_INSTALL:append = " \
     strace \
     gdb \
     python3 \
+    grep \
 "
 
 # Cluster services

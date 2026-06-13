@@ -10,6 +10,8 @@ SRC_URI = " \
     file://controller.env \
     file://policy.toml \
     file://worker_af_packet \
+    file://cluster-dhcp \
+    file://cluster-run \
 "
 
 INHIBIT_PACKAGE_STRIP = "1"
@@ -22,6 +24,8 @@ do_install() {
     install -m 0755 ${WORKDIR}/worker ${D}/usr/bin/cluster-worker
     install -m 0755 ${WORKDIR}/controller ${D}/usr/bin/cluster-controller
     install -m 0755 ${WORKDIR}/worker_af_packet ${D}/usr/bin/worker_af_packet
+    install -m 0755 ${WORKDIR}/cluster-dhcp ${D}/usr/bin/cluster-dhcp
+    install -m 0755 ${WORKDIR}/cluster-run ${D}/usr/bin/cluster-run
 
     install -d ${D}/etc/cluster
     install -m 0644 ${WORKDIR}/categories.json ${D}/etc/cluster/
@@ -31,4 +35,6 @@ do_install() {
     install -m 0644 ${WORKDIR}/policy.toml ${D}/etc/cluster/
 }
 
-FILES:${PN} = "/usr/bin/cluster-worker /usr/bin/cluster-controller /usr/bin/worker_af_packet /etc/cluster"
+RDEPENDS:${PN} += "dnsmasq"
+
+FILES:${PN} = "/usr/bin/cluster-worker /usr/bin/cluster-controller /usr/bin/worker_af_packet /usr/bin/cluster-dhcp /usr/bin/cluster-run /etc/cluster"

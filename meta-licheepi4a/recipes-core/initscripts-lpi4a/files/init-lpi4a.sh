@@ -11,3 +11,6 @@ echo 1 > /proc/sys/net/core/bpf_jit_enable
 
 ip link set eth0 up 2>/dev/null
 ip link set eth1 up 2>/dev/null
+
+ip tuntap add tap0 mode tap 2>/dev/null || true
+ip link set tap0 up 2>/dev/null || true

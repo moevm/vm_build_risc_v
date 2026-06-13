@@ -28,6 +28,7 @@ IMAGE_INSTALL:append = " \
     coreutils \
     util-linux \
     initscripts-cluster \
+    dnsmasq \
 "
 
 # Extra rootfs space (4GB)
