@@ -23,6 +23,12 @@ case "$ROLE" in
     controller)
         ENV_FILE="${ENV_FILE:-/etc/cluster/controller.env}"
         BIN="/usr/bin/cluster-controller"
+        ip link set lo up 2>/dev/null || true
+        if ! redis-cli ping > /dev/null 2>&1; then
+            redis-server --daemonize yes --bind 127.0.0.1 --appendonly yes
+            echo "Redis started"
+        fi
+        export REDIS_ADDR=127.0.0.1:6379
         ;;
     worker)
         ENV_FILE="${ENV_FILE:-/etc/cluster/worker.env}"

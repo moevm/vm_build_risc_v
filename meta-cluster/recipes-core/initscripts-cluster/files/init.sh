@@ -46,17 +46,37 @@ run_with_logs() {
 
 case "$ROLE" in
     controller)
+        exec > /mnt/shared/logs/init-debug.log 2>&1
+        set -x
+        ip link set lo up
         ip link set "$MGMT_IF" up 2>/dev/null || true
         ip addr add 10.0.2.3/24 dev "$MGMT_IF" 2>/dev/null || true
         ip -6 addr add fd00:a::3/64 dev "$MGMT_IF" 2>/dev/null || true
 
+        echo "DEBUG: lo state:"
+        ip addr show lo
+        echo "DEBUG: starting dnsmasq"
         dnsmasq --interface="$MGMT_IF" --conf-file=/etc/cluster/dnsmasq.conf
+        echo "DEBUG: dnsmasq exit code: $?"
+
+        echo "DEBUG: starting redis-server"
+        redis-server --daemonize yes --bind 127.0.0.1
+        echo "DEBUG: redis-server exit code: $?"
+        echo "DEBUG: checking redis process"
+        ps | grep redis
+        echo "DEBUG: checking port 6379"
+        netstat -tlnp 2>/dev/null || ss -tlnp 2>/dev/null || true
+        echo "DEBUG: trying redis-cli ping"
+        redis-cli -h 127.0.0.1 -p 6379 ping
+        echo "DEBUG: redis-cli exit code: $?"
+        echo "DEBUG: redis check done"
 
         if [ -f /mnt/shared/configs/controller.env ]; then
             set -a
             . /mnt/shared/configs/controller.env
             set +a
         fi
+        export REDIS_ADDR=127.0.0.1:6379
         cd /mnt/shared
         run_with_logs controller ./controller &
         ;;
