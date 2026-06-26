@@ -9,7 +9,7 @@ SRC_URI = " \
     git://github.com/revyos/thead-u-boot.git;protocol=https;branch=th1520 \
     file://booti.cfg \
 "
-SRCREV = "${AUTOREV}"
+SRCREV = "a13e24ed9ed773d4a07f079576a2fd654af6bfbb"
 
 S = "${WORKDIR}/git"
 B = "${S}"

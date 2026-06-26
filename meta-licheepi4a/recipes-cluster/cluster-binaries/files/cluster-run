@@ -1,0 +1,56 @@
+#!/bin/sh
+
+usage() {
+    echo "Usage: cluster-run <controller|worker> [env-file]"
+    echo ""
+    echo "Runs cluster binary with environment from env file."
+    echo "Default env file: /etc/cluster/<role>.env"
+    echo ""
+    echo "Example:"
+    echo "  cluster-run controller"
+    echo "  cluster-run worker /etc/cluster/worker.env"
+    exit 1
+}
+
+ROLE="$1"
+ENV_FILE="$2"
+
+if [ -z "$ROLE" ]; then
+    usage
+fi
+
+case "$ROLE" in
+    controller)
+        ENV_FILE="${ENV_FILE:-/etc/cluster/controller.env}"
+        BIN="/usr/bin/cluster-controller"
+        ip link set lo up 2>/dev/null || true
+        if ! redis-cli ping > /dev/null 2>&1; then
+            redis-server --daemonize yes --bind 127.0.0.1 --appendonly yes
+            echo "Redis started"
+        fi
+        export REDIS_ADDR=127.0.0.1:6379
+        ;;
+    worker)
+        ENV_FILE="${ENV_FILE:-/etc/cluster/worker.env}"
+        BIN="/usr/bin/cluster-worker"
+        ;;
+    *)
+        usage
+        ;;
+esac
+
+if [ ! -x "$BIN" ]; then
+    echo "Binary not found: $BIN"
+    exit 1
+fi
+
+if [ -f "$ENV_FILE" ]; then
+    set -a
+    . "$ENV_FILE"
+    set +a
+    echo "Loaded $ENV_FILE"
+else
+    echo "Warning: $ENV_FILE not found, running without env"
+fi
+
+exec "$BIN"

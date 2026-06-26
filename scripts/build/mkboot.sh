@@ -41,7 +41,7 @@ label yocto
     menu label Yocto DPDK Image
     linux /Image.gz
     fdt /dtbs/th1520-lichee-pi-4a-16g.dtb
-    append root=/dev/mmcblk0p4 console=ttyS0,115200 earlycon=uart8250,mmio32,0xffe7014000,115200n8 rootwait rw clk_ignore_unused loglevel=7 rootfstype=ext4
+    append root=/dev/mmcblk0p4 console=ttyS0,115200 console=tty1 earlycon=uart8250,mmio32,0xffe7014000,115200n8 rootwait rw clk_ignore_unused loglevel=7 rootfstype=ext4
 EXTEOF
 
 echo "    [extlinux.conf]"

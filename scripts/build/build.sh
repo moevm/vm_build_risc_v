@@ -21,6 +21,10 @@ if [ ! -d "meta-openembedded" ]; then
     git clone -b "${YOCTO_BRANCH}" --depth=1 https://github.com/openembedded/meta-openembedded
 fi
 
+if [ ! -d "meta-clang" ]; then
+    git clone -b "${YOCTO_BRANCH}" --depth=1 https://github.com/kraj/meta-clang
+fi
+
 source oe-init-build-env build
 
 # TODO:
@@ -41,6 +45,7 @@ BBLAYERS ?= " \
   /home/builder/yocto/poky/meta-openembedded/meta-python \
   /home/builder/yocto/poky/meta-openembedded/meta-networking \
   /home/builder/yocto/poky/meta-openembedded/meta-filesystems \
+  /home/builder/yocto/poky/meta-clang \
   /home/builder/meta-cluster \
   /home/builder/meta-licheepi4a \
   "

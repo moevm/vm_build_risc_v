@@ -8,7 +8,7 @@ inherit deploy
 
 BRANCH = "th1520-v1.6"
 SRC_URI = "git://github.com/revyos/opensbi.git;branch=${BRANCH};protocol=https"
-SRCREV = "${AUTOREV}"
+SRCREV = "1b8e883a7368676c2bafd6236dfd2dd5edabe067"
 PV = "1.6+git"
 
 S = "${WORKDIR}/git"

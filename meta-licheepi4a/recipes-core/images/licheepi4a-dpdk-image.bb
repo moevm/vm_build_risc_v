@@ -15,7 +15,6 @@ IMAGE_FEATURES += " \
 # DPDK packages
 IMAGE_INSTALL:append = " \
     dpdk \
-    dpdk-examples \
     numactl \
 "
 
@@ -28,7 +27,7 @@ IMAGE_INSTALL:append = " \
     tcpdump \
     net-tools \
     openssh-sftp-server \
-    nfs-utils-client \
+    dnsmasq \
 "
 
 # System utilities
@@ -58,6 +57,21 @@ IMAGE_INSTALL:append = " \
     strace \
     gdb \
     python3 \
+    grep \
+"
+
+# Cluster services
+IMAGE_INSTALL:append = " \
+    initscripts-lpi4a \
+    cluster-binaries \
+    libbpf \
+    libxdp \
+    elfutils \
+    openssl \
+    curl \
+    sqlite3 \
+    prometheus-cpp \
+    redis \
 "
 
 # Kernel modules
