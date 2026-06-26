@@ -32,20 +32,17 @@ RUN apt update && \
     wget \
     xz-utils \
     zstd \
-    sudo
+    sudo && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8
 
-RUN useradd -m -s /bin/bash builder
-RUN echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers
-RUN usermod -aG sudo builder
+RUN useradd -m -s /bin/bash builder && \
+    echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder
 
 WORKDIR /home/builder
 
-COPY scripts/build/build.sh /home/builder/scripts/build.sh
-COPY scripts/build/run.sh /home/builder/scripts/run.sh
-RUN chmod +x /home/builder/scripts/build.sh
-RUN chmod +x /home/builder/scripts/run.sh
+COPY meta-cluster /home/builder/meta-cluster
 
 USER builder
 
