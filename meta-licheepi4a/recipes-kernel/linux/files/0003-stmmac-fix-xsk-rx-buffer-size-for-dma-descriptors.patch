@@ -1,0 +1,50 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: builder <builder@localhost>
+Date: Wed, 02 Jul 2026 00:00:00 +0000
+Subject: [PATCH] net: stmmac: fix XSK RX buffer size for DMA descriptors
+
+When XSK buffer pool is active, stmmac_clear_rx_descriptors() passes
+dma_buf_sz to stmmac_init_rx_desc(), which is larger than the actual
+XSK buffer frame size. On RISC-V with SWIOTLB this causes a buffer
+overflow: "Buffer overflow detected. Allocation size: 1344.
+Mapping size: 1792."
+
+Use xsk_pool_get_rx_frame_size() when XSK pool is bound to the queue,
+matching how stmmac_xdp_open() already sets DMA bfsize via
+stmmac_set_dma_bfsize().
+
+Signed-off-by: builder <builder@localhost>
+---
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1352,20 +1352,24 @@
+ 					u32 queue)
+ {
+ 	struct stmmac_rx_queue *rx_q = &dma_conf->rx_queue[queue];
++	int buf_sz = dma_conf->dma_buf_sz;
+ 	int i;
+ 
++	if (rx_q->xsk_pool)
++		buf_sz = xsk_pool_get_rx_frame_size(rx_q->xsk_pool);
++
+ 	/* Clear the RX descriptors */
+ 	for (i = 0; i < dma_conf->dma_rx_size; i++)
+ 		if (priv->extend_desc)
+ 			stmmac_init_rx_desc(priv, &rx_q->dma_erx[i].basic,
+ 					priv->use_riwt, priv->mode,
+ 					(i == dma_conf->dma_rx_size - 1),
+-					dma_conf->dma_buf_sz);
++					buf_sz);
+ 		else
+ 			stmmac_init_rx_desc(priv, &rx_q->dma_rx[i],
+ 					priv->use_riwt, priv->mode,
+ 					(i == dma_conf->dma_rx_size - 1),
+-					dma_conf->dma_buf_sz);
++					buf_sz);
+ }
+ 
+ /**

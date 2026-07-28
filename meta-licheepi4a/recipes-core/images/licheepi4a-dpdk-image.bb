@@ -15,7 +15,6 @@ IMAGE_FEATURES += " \
 # DPDK packages
 IMAGE_INSTALL:append = " \
     dpdk \
-    dpdk-examples \
     numactl \
 "
 
@@ -28,7 +27,7 @@ IMAGE_INSTALL:append = " \
     tcpdump \
     net-tools \
     openssh-sftp-server \
-    nfs-utils-client \
+    dnsmasq \
 "
 
 # System utilities
@@ -58,6 +57,22 @@ IMAGE_INSTALL:append = " \
     strace \
     gdb \
     python3 \
+    grep \
+    perf \
+"
+
+# Cluster services
+IMAGE_INSTALL:append = " \
+    initscripts-lpi4a \
+    cluster-binaries \
+    libbpf \
+    libxdp \
+    elfutils \
+    openssl \
+    curl \
+    sqlite3 \
+    prometheus-cpp \
+    redis \
 "
 
 # Kernel modules
@@ -68,6 +83,14 @@ IMAGE_INSTALL:append = " \
 # Firmware
 IMAGE_INSTALL:append = " \
     firmware-th1520 \
+    linux-firmware-rtl8723 \
+"
+
+# WiFi
+IMAGE_INSTALL:append = " \
+    wpa-supplicant \
+    iw \
+    wireless-regdb-static \
 "
 
 # Extra rootfs space

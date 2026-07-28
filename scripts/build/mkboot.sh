@@ -2,7 +2,7 @@
 
 set -e
 
-DEPLOY="/home/builder/yocto/poky/build/tmp/deploy/images/licheepi4a"
+DEPLOY="/home/builder/yocto/poky/build/tmp-glibc/deploy/images/licheepi4a"
 BOOT_IMG="${DEPLOY}/boot-licheepi4a.ext4"
 BOOT_SIZE_MB=200
 
@@ -41,7 +41,7 @@ label yocto
     menu label Yocto DPDK Image
     linux /Image.gz
     fdt /dtbs/th1520-lichee-pi-4a-16g.dtb
-    append root=/dev/mmcblk0p4 console=ttyS0,115200 earlycon=uart8250,mmio32,0xffe7014000,115200n8 rootwait rw clk_ignore_unused loglevel=7 rootfstype=ext4
+    append root=/dev/mmcblk0p4 console=ttyS0,115200 earlycon=uart8250,mmio32,0xffe7014000,115200n8 rootwait rw clk_ignore_unused loglevel=7 rootfstype=ext4 swiotlb=131072
 EXTEOF
 
 echo "    [extlinux.conf]"

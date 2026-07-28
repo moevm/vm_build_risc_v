@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: builder <builder@localhost>
+Date: Wed, 02 Jul 2026 00:00:00 +0000
+Subject: [PATCH] net: stmmac: disable hardware checksum insertion for XDP TX
+
+The XDP TX paths (stmmac_xdp_xmit_zc and stmmac_xdp_xmit_xdpf)
+unconditionally enable hardware checksum insertion (CIC=3) in the
+TX DMA descriptor. This causes the GMAC to zero the L4 checksum
+field and attempt hardware computation, resulting in corrupted
+packets for all protocols.
+
+Since XDP frames do not carry ip_summed metadata, disable hardware
+checksum insertion for all XDP-transmitted frames.
+
+Signed-off-by: builder <builder@localhost>
+---
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -2427,7 +2427,7 @@
+ 	struct netdev_queue *nq = netdev_get_tx_queue(priv->dev, queue);
+ 	struct stmmac_tx_queue *tx_q = &priv->dma_conf.tx_queue[queue];
+ 	struct stmmac_txq_stats *txq_stats = &priv->xstats.txq_stats[queue];
+-	bool csum = !priv->plat->tx_queues_cfg[queue].coe_unsupported;
++	bool csum = false;
+ 	struct xsk_buff_pool *pool = tx_q->xsk_pool;
+ 	unsigned int entry = tx_q->cur_tx;
+ 	struct dma_desc *tx_desc = NULL;
+@@ -4753,7 +4753,7 @@
+ {
+ 	struct stmmac_txq_stats *txq_stats = &priv->xstats.txq_stats[queue];
+ 	struct stmmac_tx_queue *tx_q = &priv->dma_conf.tx_queue[queue];
+-	bool csum = !priv->plat->tx_queues_cfg[queue].coe_unsupported;
++	bool csum = false;
+ 	unsigned int entry = tx_q->cur_tx;
+ 	struct dma_desc *tx_desc;
+ 	dma_addr_t dma_addr;
