@@ -28,9 +28,6 @@ fi
 source oe-init-build-env build
 
 cp /home/builder/scripts/conf/bblayers-qemu.conf conf/bblayers.conf
-
-if ! grep -q "### QEMU RISCV64 CONFIG ###" conf/local.conf 2>/dev/null; then
-    cp /home/builder/scripts/conf/local-qemu.conf conf/local.conf
-fi
+cp /home/builder/scripts/conf/local-qemu.conf conf/local.conf
 
 bitbake cluster-image

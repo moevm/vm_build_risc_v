@@ -27,63 +27,8 @@ fi
 
 source oe-init-build-env build
 
-# TODO:
-# Сделать отдельный файл для конфигов
-# bblayers.conf и local.conf
-
-cat > conf/bblayers.conf << 'LAYERSEOF'
-POKY_BBLAYERS_CONF_VERSION = "2"
-
-BBPATH = "${TOPDIR}"
-BBFILES ?= ""
-
-BBLAYERS ?= " \
-  /home/builder/yocto/poky/meta \
-  /home/builder/yocto/poky/meta-poky \
-  /home/builder/yocto/poky/meta-yocto-bsp \
-  /home/builder/yocto/poky/meta-openembedded/meta-oe \
-  /home/builder/yocto/poky/meta-openembedded/meta-python \
-  /home/builder/yocto/poky/meta-openembedded/meta-networking \
-  /home/builder/yocto/poky/meta-openembedded/meta-filesystems \
-  /home/builder/yocto/poky/meta-clang \
-  /home/builder/meta-cluster \
-  /home/builder/meta-licheepi4a \
-  "
-LAYERSEOF
-
-cat > conf/local.conf << 'CONFEOF'
-### LICHEEPI4A CONFIG ###
-# Machine: Lichee Pi 4A with TH1520 SoC
-MACHINE = "licheepi4a"
-
-# Use RevyOS kernel 6.6 for full hardware support
-PREFERRED_PROVIDER_virtual/kernel = "linux-revyos-th1520"
-
-# Extra disk space in rootfs
-IMAGE_ROOTFS_EXTRA_SPACE = "1048576"
-IMAGE_ROOTFS_ALIGNMENT = "4096"
-
-# Accept all licenses (needed for some firmware blobs)
-LICENSE_FLAGS_ACCEPTED = "commercial"
-
-# Package management on target
-EXTRA_IMAGE_FEATURES += "package-management debug-tweaks"
-
-# For don't delete binary information
-INHIBIT_PACKAGE_STRIP = "1"
-
-# Correct type of debuginfo
-PACKAGE_DEBUG_SPLIT_STYLE = 'debug-file-directory'
-
-# Disable network connectivity check (runs inside Docker)
-CONNECTIVITY_CHECK_URIS = ""
-
-# Save disk space
-INHERIT:remove = "create-spdx"
-SSTATE_MIRRORS = ""
-
-### END LICHEEPI4A CONFIG ###
-CONFEOF
+cp /home/builder/scripts/conf/bblayers-licheepi4a.conf conf/bblayers.conf
+cp /home/builder/scripts/conf/local-licheepi4a.conf conf/local.conf
 
 bitbake licheepi4a-dpdk-image
 
