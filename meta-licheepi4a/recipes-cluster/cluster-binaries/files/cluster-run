@@ -4,7 +4,7 @@ usage() {
     echo "Usage: cluster-run <controller|worker> [env-file]"
     echo ""
     echo "Runs cluster binary with environment from env file."
-    echo "Default env file: /etc/cluster/<role>.env"
+    echo "Default env file: /opt/traffic-filtering/internal/service/config/<role>.env"
     echo ""
     echo "Example:"
     echo "  cluster-run controller"
@@ -21,8 +21,8 @@ fi
 
 case "$ROLE" in
     controller)
-        ENV_FILE="${ENV_FILE:-/etc/cluster/controller.env}"
-        BIN="/usr/bin/cluster-controller"
+        ENV_FILE="${ENV_FILE:-/opt/traffic-filtering/internal/service/config/controller.env}"
+        BIN="/opt/traffic-filtering/controller"
         ip link set lo up 2>/dev/null || true
         if ! redis-cli ping > /dev/null 2>&1; then
             redis-server --daemonize yes --bind 127.0.0.1 --appendonly yes
@@ -31,8 +31,8 @@ case "$ROLE" in
         export REDIS_ADDR=127.0.0.1:6379
         ;;
     worker)
-        ENV_FILE="${ENV_FILE:-/etc/cluster/worker.env}"
-        BIN="/usr/bin/cluster-worker"
+        ENV_FILE="${ENV_FILE:-/opt/traffic-filtering/internal/service/config/worker.env}"
+        BIN="/opt/traffic-filtering/worker"
         ;;
     *)
         usage

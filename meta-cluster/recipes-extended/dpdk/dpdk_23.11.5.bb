@@ -24,7 +24,7 @@ EXTRA_OEMESON = " \
     -Dmax_lcores=128 \
     -Dmax_numa_nodes=1 \
     -Ddisable_drivers=crypto/*,compress/*,regex/*,vdpa/*,event/*,baseband/*,gpu/*,raw/*,dma/* \
-    -Denable_drivers=net/af_xdp,net/tap \
+    -Denable_drivers=net/af_xdp,net/af_packet,net/tap \
 "
 
 EXTRA_OEMESON:append:riscv64 = " \

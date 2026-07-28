@@ -20,21 +20,21 @@ INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 INSANE_SKIP:${PN} = "ldflags already-stripped file-rdeps"
 
 do_install() {
-    install -d ${D}/usr/bin
-    install -m 0755 ${WORKDIR}/worker ${D}/usr/bin/cluster-worker
-    install -m 0755 ${WORKDIR}/controller ${D}/usr/bin/cluster-controller
-    install -m 0755 ${WORKDIR}/worker_af_packet ${D}/usr/bin/worker_af_packet
-    install -m 0755 ${WORKDIR}/cluster-dhcp ${D}/usr/bin/cluster-dhcp
-    install -m 0755 ${WORKDIR}/cluster-run ${D}/usr/bin/cluster-run
+    install -d ${D}/opt/traffic-filtering
+    install -m 0755 ${WORKDIR}/worker ${D}/opt/traffic-filtering/worker
+    install -m 0755 ${WORKDIR}/controller ${D}/opt/traffic-filtering/controller
+    install -m 0755 ${WORKDIR}/worker_af_packet ${D}/opt/traffic-filtering/worker_af_packet
+    install -m 0755 ${WORKDIR}/cluster-dhcp ${D}/opt/traffic-filtering/cluster-dhcp
+    install -m 0755 ${WORKDIR}/cluster-run ${D}/opt/traffic-filtering/cluster-run
 
-    install -d ${D}/etc/cluster
-    install -m 0644 ${WORKDIR}/categories.json ${D}/etc/cluster/
-    install -m 0644 ${WORKDIR}/providers.json ${D}/etc/cluster/
-    install -m 0644 ${WORKDIR}/worker.env ${D}/etc/cluster/
-    install -m 0644 ${WORKDIR}/controller.env ${D}/etc/cluster/
-    install -m 0644 ${WORKDIR}/policy.toml ${D}/etc/cluster/
+    install -d ${D}/opt/traffic-filtering/internal/service/config
+    install -m 0644 ${WORKDIR}/categories.json ${D}/opt/traffic-filtering/internal/service/config
+    install -m 0644 ${WORKDIR}/providers.json ${D}/opt/traffic-filtering/internal/service/config
+    install -m 0644 ${WORKDIR}/worker.env ${D}/opt/traffic-filtering/internal/service/config
+    install -m 0644 ${WORKDIR}/controller.env ${D}/opt/traffic-filtering/internal/service/config
+    install -m 0644 ${WORKDIR}/policy.toml ${D}/opt/traffic-filtering/internal/service/config
 }
 
 RDEPENDS:${PN} += "dnsmasq"
 
-FILES:${PN} = "/usr/bin/cluster-worker /usr/bin/cluster-controller /usr/bin/worker_af_packet /usr/bin/cluster-dhcp /usr/bin/cluster-run /etc/cluster"
+FILES:${PN} = "/opt/traffic-filtering"

@@ -51,8 +51,7 @@ BBLAYERS ?= " \
   "
 LAYERSEOF
 
-if ! grep -q "### LICHEEPI4A CONFIG ###" conf/local.conf 2>/dev/null; then
-    cat >> conf/local.conf << 'CONFEOF'
+cat > conf/local.conf << 'CONFEOF'
 ### LICHEEPI4A CONFIG ###
 # Machine: Lichee Pi 4A with TH1520 SoC
 MACHINE = "licheepi4a"
@@ -68,13 +67,23 @@ IMAGE_ROOTFS_ALIGNMENT = "4096"
 LICENSE_FLAGS_ACCEPTED = "commercial"
 
 # Package management on target
-EXTRA_IMAGE_FEATURES += "package-management"
+EXTRA_IMAGE_FEATURES += "package-management debug-tweaks"
+
+# For don't delete binary information
+INHIBIT_PACKAGE_STRIP = "1"
+
+# Correct type of debuginfo
+PACKAGE_DEBUG_SPLIT_STYLE = 'debug-file-directory'
 
 # Disable network connectivity check (runs inside Docker)
 CONNECTIVITY_CHECK_URIS = ""
+
+# Save disk space
+INHERIT:remove = "create-spdx"
+SSTATE_MIRRORS = ""
+
 ### END LICHEEPI4A CONFIG ###
 CONFEOF
-fi
 
 bitbake licheepi4a-dpdk-image
 

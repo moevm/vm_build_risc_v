@@ -14,6 +14,8 @@ SRC_URI = "git://github.com/revyos/th1520-linux-kernel.git;protocol=https;branch
            file://extra.cfg \
            file://dpdk.cfg \
            file://0001-stmmac-fix-ethtool-channels-for-single-queue-gmac.patch \
+           file://0002-stmmac-disable-hw-checksum-insertion-for-xdp-tx.patch \
+           file://0003-stmmac-fix-xsk-rx-buffer-size-for-dma-descriptors.patch \
            "
 
 SRCREV = "a092d55649279e1c9bcda2769b8f6b4370fa2c94"

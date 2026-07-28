@@ -28,7 +28,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$IMAGE_DIR" ]; then
-    IMAGE_DIR="$(dirname "$0")/../yocto/poky/build/tmp/deploy/images/licheepi4a"
+    IMAGE_DIR="$(dirname "$0")/../yocto/poky/build/tmp-glibc/deploy/images/licheepi4a"
 fi
 
 if [ ! -d "$IMAGE_DIR" ]; then

@@ -58,6 +58,7 @@ IMAGE_INSTALL:append = " \
     gdb \
     python3 \
     grep \
+    perf \
 "
 
 # Cluster services
@@ -82,6 +83,14 @@ IMAGE_INSTALL:append = " \
 # Firmware
 IMAGE_INSTALL:append = " \
     firmware-th1520 \
+    linux-firmware-rtl8723 \
+"
+
+# WiFi
+IMAGE_INSTALL:append = " \
+    wpa-supplicant \
+    iw \
+    wireless-regdb-static \
 "
 
 # Extra rootfs space
