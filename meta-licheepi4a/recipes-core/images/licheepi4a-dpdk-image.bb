@@ -64,15 +64,11 @@ IMAGE_INSTALL:append = " \
 # Cluster services
 IMAGE_INSTALL:append = " \
     initscripts-lpi4a \
-    cluster-binaries \
     libbpf \
     libxdp \
     elfutils \
     openssl \
     curl \
-    sqlite3 \
-    prometheus-cpp \
-    redis \
 "
 
 # Kernel modules
