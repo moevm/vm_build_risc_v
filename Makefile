@@ -6,7 +6,8 @@ QEMU_DEPLOY_DIR = $(QEMU_VOLUME_NAME)/poky/build/tmp/deploy/images/qemuriscv64
 .DEFAULT_GOAL = help
 
 DOCKER_RUN = docker run --rm -it \
-	--memory=12g \
+	--network host \
+	--memory=24g \
 	--cpus=8 \
 	-v $(PWD)/$(VOLUME_NAME)/:/home/builder/$(VOLUME_NAME)/:Z \
 	-v $(PWD)/meta-licheepi4a:/home/builder/meta-licheepi4a:Z \
@@ -15,7 +16,7 @@ DOCKER_RUN = docker run --rm -it \
 	$(IMAGE_NAME)
 
 DOCKER_RUN_QEMU = docker run --rm -it \
-	--memory=12g \
+	--memory=24g \
 	--cpus=8 \
 	-v $(PWD)/$(QEMU_VOLUME_NAME)/:/home/builder/$(QEMU_VOLUME_NAME)/:Z \
 	-v $(PWD)/meta-cluster:/home/builder/meta-cluster:Z \
